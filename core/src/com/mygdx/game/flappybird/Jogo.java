@@ -20,7 +20,7 @@ public class Jogo extends ApplicationAdapter {
 	@Override
 	public void create () {
 		batch = new SpriteBatch();
-//puxando as imagens da pasta assets 		
+//puxando as imagens da pasta assets
 		fundo = new Texture("Fundo.png");
 		passaro = new Texture("passaro1");
 // puxando da biblioteca para adaptar o fundo com o celular
