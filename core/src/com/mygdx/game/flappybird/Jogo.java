@@ -7,9 +7,9 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.utils.ScreenUtils;
 
 public class Jogo extends ApplicationAdapter {
-	SpriteBatch batch;
-	Texture passaro;
-	Texture fundo;
+	private SpriteBatch batch;
+	private Texture passaro;
+	private Texture fundo;
 
 	private float larguraDispositivo;
 	private float alturaDispositivo;
@@ -20,9 +20,11 @@ public class Jogo extends ApplicationAdapter {
 	@Override
 	public void create () {
 		batch = new SpriteBatch();
+
 //puxando as imagens da pasta assets
-		fundo = new Texture("Fundo.png");
-		passaro = new Texture("passaro1");
+		fundo = new Texture("fundo.png");
+		passaro = new Texture("passaro1.png");
+
 // puxando da biblioteca para adaptar o fundo com o celular
 		larguraDispositivo = Gdx.graphics.getWidth();
 		alturaDispositivo = Gdx.graphics.getHeight();
@@ -37,7 +39,9 @@ public class Jogo extends ApplicationAdapter {
 		batch.draw(fundo, 0, 0, larguraDispositivo, alturaDispositivo);
 		batch.draw(passaro, movimentaX,movimentaY);
 
+// adiciona valor no eixo x, fazendo ele movimentar neste eixo
 		movimentaX ++;
+// adiciona valor no eixo y, fazendo ele movimentar neste eixo
 		movimentaY++;
 
 //termina a sequencia da aplicação
