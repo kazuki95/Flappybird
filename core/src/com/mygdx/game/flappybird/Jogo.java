@@ -2,6 +2,8 @@ package com.mygdx.game.flappybird;
 
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Preferences;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
@@ -36,17 +38,26 @@ public class Jogo extends ApplicationAdapter {
 	private float posicaoCanoHorizontal;
 	private float posicaoCanoVertical;
 	private float espacoEntreCanos;
+	private float posicaoHorizontalPassaro = 0;
 
 	private Random random;
 
 	private int pontos = 0;
 	private int estadoJogo = 0;
+	private int pontuacaoMaxima = 0;
 
 	private boolean passouCano = false;
 
 	BitmapFont textoPontuacao;
 	BitmapFont textoReiniciar;
 	BitmapFont textoMelhorPontuacao;
+
+	Sound somVoando;
+	Sound somColisao;
+	Sound somPontuacao;
+
+	Preferences preferencias;
+
 
 	@Override
 	public void create ()
@@ -100,13 +111,21 @@ public class Jogo extends ApplicationAdapter {
 		retanguloCanoCima = new Rectangle();
 		retanguloCanoBaixo = new Rectangle();
 
+		somVoando = Gdx.audio.newSound(Gdx.files.internal("som_asa.wav"));
+		somColisao = Gdx.audio.newSound(Gdx.files.internal("som_batida.wav"));
+		somPontuacao = Gdx.audio.newSound(Gdx.files.internal("som_pontos.wav"));
+
+		preferencias = Gdx.app.getPreferences("flappyBird");
+		pontuacaoMaxima = preferencias.getInteger("pontuacaoMaxima", 0);
+
+
 	}
 
 	private void inicializaTexturas()
 	{
 //inicializando as imagens
 
-////fazendo aparecer a lista de sprites do passaro
+//fazendo aparecer a lista de sprites do passaro
 		passaros= new Texture[3];
 		passaros[0] = new Texture("passaro1.png");
 		passaros[1] = new Texture("passaro2.png");
@@ -150,8 +169,11 @@ public class Jogo extends ApplicationAdapter {
 
 		if(bateuCanoCima || bateuCanoBaixo)
 		{
-			Gdx.app.log("Log", "bateu");
-			estadoJogo = 2;
+			if(estadoJogo == 1)
+			{
+				somColisao.play();
+				estadoJogo = 2;
+			}
 		}
 	}
 
@@ -165,6 +187,7 @@ public class Jogo extends ApplicationAdapter {
 			{
 				pontos ++;
 				passouCano = true;
+				somPontuacao.play();
 			}
 		}
 //variação da animação do passaro
@@ -179,21 +202,24 @@ public class Jogo extends ApplicationAdapter {
 //inicia quando tocar na tela
 		if(estadoJogo == 0)
 		{
-// fazer o passaro subir ao tocar na tela
+// fazer o passaro subir ao tocar na tela para iniciar o jogo
 			if (toqueTela)
 			{
 				gravidade = -15;
 				estadoJogo = 1;
+				somVoando.play();
 			}
 
 		}
 
 		else if (estadoJogo == 1)
 		{
+
 // fazer o passaro subir ao tocar na tela
 			if (toqueTela)
 			{
 				gravidade = -15;
+				somVoando.play();
 			}
 
 //velocidade dos canos
@@ -216,7 +242,24 @@ public class Jogo extends ApplicationAdapter {
 
 		else if (estadoJogo == 2)
 		{
+			if(pontos > pontuacaoMaxima)
+			{
+				pontuacaoMaxima = pontos;
+				preferencias.putInteger("pontuacaoMaxima", pontuacaoMaxima);
+			}
 
+			posicaoHorizontalPassaro -= Gdx.graphics.getDeltaTime() * 500;
+
+//reiniciando os atributos para reiniciar o jogo
+			if(toqueTela)
+			{
+				estadoJogo = 0;
+				pontos = 0;
+				gravidade = 0;
+				posicaoHorizontalPassaro = 0;
+				posicaoInicialVerticalPassaro = alturaDispositivo / 2;
+				posicaoCanoHorizontal = larguraDispositivo;
+			}
 		}
 
 	}
@@ -230,7 +273,7 @@ public class Jogo extends ApplicationAdapter {
 		batch.draw(fundo, 0, 0, larguraDispositivo, alturaDispositivo);
 
 // puxa a imagem que colocou no create do passaro
-		batch.draw(passaros[(int) variacao], 50, posicaoInicialVerticalPassaro);
+		batch.draw(passaros[(int) variacao], 50 + posicaoHorizontalPassaro, posicaoInicialVerticalPassaro);
 
 // puxa a imagem que colocou no create dos canos
 		batch.draw(canoBaixo, posicaoCanoHorizontal,
@@ -251,7 +294,7 @@ public class Jogo extends ApplicationAdapter {
 					larguraDispositivo / 2 - 350, alturaDispositivo / 2 - gameOver.getHeight() / 2 - 50);
 
 // puxa a imagem que colocou no create da melhor pontuação
-			textoMelhorPontuacao.draw(batch, "SUA MELHOR PONTUAÇÃO É: 0 PONTOS!",
+			textoMelhorPontuacao.draw(batch, "SUA MELHOR PONTUAÇÃO É: "+ pontuacaoMaxima +" PONTOS!",
 					larguraDispositivo / 2 - 400, alturaDispositivo / 2 - gameOver.getHeight() / 2 - 150);
 		}
 
