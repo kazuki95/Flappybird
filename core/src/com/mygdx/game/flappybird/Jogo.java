@@ -33,7 +33,7 @@ public class Jogo extends ApplicationAdapter {
 	private float larguraDispositivo;
 	private float alturaDispositivo;
 	private float variacao = 0;
-	private float gravidade = 2;
+	private float gravidade = 0;
 	private float posicaoInicialVerticalPassaro = 0;
 	private float posicaoCanoHorizontal;
 	private float posicaoCanoVertical;
@@ -41,6 +41,8 @@ public class Jogo extends ApplicationAdapter {
 	private float posicaoHorizontalPassaro = 0;
 
 	private Random random;
+
+
 
 	private int pontos = 0;
 	private int estadoJogo = 0;
@@ -110,11 +112,11 @@ public class Jogo extends ApplicationAdapter {
 		circuloPassaro = new Circle();
 		retanguloCanoCima = new Rectangle();
 		retanguloCanoBaixo = new Rectangle();
-
+//som do jogo
 		somVoando = Gdx.audio.newSound(Gdx.files.internal("som_asa.wav"));
 		somColisao = Gdx.audio.newSound(Gdx.files.internal("som_batida.wav"));
 		somPontuacao = Gdx.audio.newSound(Gdx.files.internal("som_pontos.wav"));
-
+//salvar o valor da pontuação maxima
 		preferencias = Gdx.app.getPreferences("flappyBird");
 		pontuacaoMaxima = preferencias.getInteger("pontuacaoMaxima", 0);
 
@@ -211,7 +213,7 @@ public class Jogo extends ApplicationAdapter {
 			}
 
 		}
-
+//verifica que o jogador está jogando
 		else if (estadoJogo == 1)
 		{
 
@@ -225,7 +227,7 @@ public class Jogo extends ApplicationAdapter {
 //velocidade dos canos
 			posicaoCanoHorizontal -= Gdx.graphics.getDeltaTime() * 200;
 //movimentação do cano
-			if(posicaoCanoHorizontal < -canoTopo.getWidth())
+			if(posicaoCanoHorizontal < -canoTopo.getHeight())
 			{
 				posicaoCanoHorizontal = larguraDispositivo;
 //randomizar a aparição dos canos
@@ -239,18 +241,19 @@ public class Jogo extends ApplicationAdapter {
 //adiciona gravidade
 			gravidade++;
 		}
-
+//jogador morreu
 		else if (estadoJogo == 2)
 		{
+//salvar a nova pontuação maxima
 			if(pontos > pontuacaoMaxima)
 			{
 				pontuacaoMaxima = pontos;
 				preferencias.putInteger("pontuacaoMaxima", pontuacaoMaxima);
 			}
-
+//animação de quando o jogador bate no cano
 			posicaoHorizontalPassaro -= Gdx.graphics.getDeltaTime() * 500;
 
-//reiniciando os atributos para reiniciar o jogo
+//reiniciando os atributos para reiniciar o jogo quando o jogador perde
 			if(toqueTela)
 			{
 				estadoJogo = 0;
